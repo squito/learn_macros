@@ -34,48 +34,33 @@ object SimpleTraitImpl {
   def impl(c: Context)(addSuper: Boolean, annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
     val inputs = annottees.map(_.tree).toList
+    //create the definitions we're going to add
     val newDefDefs = List(
       DefDef(Modifiers(), newTermName("x"), List(), List(), TypeTree(), Literal(Constant(5))),
       DefDef(Modifiers(), newTermName("y"), List(), List(), TypeTree(), Literal(Constant(7.0f)))
     )
-//    val addedTrait = TypeTree().setOriginal(Select(Select(Ident("com"), "com.imranrashid"), "com.imranrashid.ATrait"))
-//    val addedTrait = TypeTree().setOriginal(Select(Select(Ident("ooga"), "booga"), "Wakka"))
-//    val addedTrait = TypeTree().setOriginal(Ident("TopLevelTrait"))
-//    val addedTrait = Ident(newTypeName("TopLevelTrait"))  // WORKS!!! discovered via -Yshow-trees-compact
+
+    /*
+    this method makes trees explicitly, but as one example, you could do this with reify instead like so:
+
+    val newDefDefs = reify {
+      def x = 5
+      def y = 7.0f
+    }.tree match { case Block(defs, _) => defs}
+    */
+
+    //create the parent trait we add
     val addedTrait = Select(Select(Select(
       Select(Ident(newTermName("com")), newTermName("imranrashid")),
       newTermName("oleander")),newTermName("macros")),
       newTypeName("SimpleTrait"))
-    /* doesn't really work.  results in:
 
-
-<console>:44: warning: method Select in trait Trees is deprecated: Use Select(tree, newTermName(name)) instead
-           val addedTrait = TypeTree().setOriginal(Select(Select(Ident("ooga"), "ooga.booga"), "ooga.booga.Wakka"))
-                                                   ^
-<console>:44: warning: method Select in trait Trees is deprecated: Use Select(tree, newTermName(name)) instead
-           val addedTrait = TypeTree().setOriginal(Select(Select(Ident("ooga"), "ooga.booga"), "ooga.booga.Wakka"))
-                                                          ^
-<console>:44: warning: method Ident in trait Trees is deprecated: Use Ident(newTermName(name)) instead
-           val addedTrait = TypeTree().setOriginal(Select(Select(Ident("ooga"), "ooga.booga"), "ooga.booga.Wakka"))
-
-and then
-
-scala> @AddTraitAsSuper class Blarg
-error: object Wakka is not a member of package ooga.booga
-Note: trait Wakka exists, but it has no companion object.
-
-or
-
-scala> @AddTraitAsSuper class Blarg
-<console>:16: error: class type required but TopLevelTrait.type found
-       @AddTraitAsSuper class Blarg
-        ^
-     */
-
+    //pattern match on the inputs
     val modDefs = inputs map {tree => tree match {
       case ClassDef(mods, name, something, template) =>
         val q = template match {
           case Template(superMaybe, emptyValDef, defs) =>
+            //add the trait (if we're supposed to) and the new defs
             val newSuper = if (addSuper) superMaybe ++ List(addedTrait) else superMaybe
             Template(newSuper, emptyValDef, defs ++ newDefDefs)
           case y =>
@@ -85,6 +70,7 @@ scala> @AddTraitAsSuper class Blarg
       case x =>
         x
     }}
+    //wrap the result up in an Expr, and return it
     val result = c.Expr(Block(modDefs, Literal(Constant())))
     result
   }
@@ -93,6 +79,7 @@ scala> @AddTraitAsSuper class Blarg
     import c.universe._
     val inputs = annottees.map(_.tree).toList
 
+    //you need to put the type in explicitly here with quasiquotes
     val newDefs: List[Tree] = List(
       q"def x = 5",
       q"def y = 7.0f"
@@ -100,14 +87,18 @@ scala> @AddTraitAsSuper class Blarg
 
     val modDefs = inputs map {tree => tree match {
       case q"class $name extends $parent with ..$traits { ..$body }"=>
+        //again, explicit types everywhere with quasiquotes
         val tbody = body.asInstanceOf[List[Tree]]
         val ttraits = traits.asInstanceOf[List[Tree]]
         val q"class $ignore extends $addedType" = q"class Foo extends com.imranrashid.oleander.macros.SimpleTrait"
         val addedTypeList : List[Tree] = List(addedType)
+        // and after merging lists together, we need to call .toList again
         q"class $name extends $parent with ..${(ttraits ++ addedTypeList).toList} { ..${(newDefs ++ tbody).toList} }"
       case x =>
         x
     }}
     c.Expr(Block(modDefs, Literal(Constant())))
   }
+
+
 }
