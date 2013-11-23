@@ -20,7 +20,8 @@ object SparkBuild extends Build {
     transitiveClassifiers in Scope.GlobalScope := Seq("sources"),
     publishTo <<= baseDirectory { base => Some(Resolver.file("Local", base / "target" / "maven" asFile)(Patterns(true, Resolver.mavenStyleBasePattern))) },
     libraryDependencies ++= Seq(
-      "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test"
+      "org.scalatest" %% "scalatest" % "2.0" % "test",
+      "com.chuusai" % "shapeless_2.10.2" % "2.0.0-M1" % "test"
     )
   )
 
