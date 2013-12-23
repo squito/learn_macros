@@ -11,7 +11,7 @@ class BasicReflection(val u: scala.reflect.api.Universe) {
   }
 
   def undefinedZeroArgMethods(typ: u.Type) = {
-    zeroArgMethods(typ).filter{isDefined(_)}
+    zeroArgMethods(typ).filter{isNotDefined(_)}
   }
 
   def targetMethods(typ: u.Type) = {
@@ -21,7 +21,7 @@ class BasicReflection(val u: scala.reflect.api.Universe) {
     }
   }
 
-  def isDefined(method: u.MethodSymbol): Boolean = {
+  def isNotDefined(method: u.MethodSymbol): Boolean = {
     //from http://stackoverflow.com/questions/16792824/test-whether-a-method-is-defined
     isDeferred(method)
   }
