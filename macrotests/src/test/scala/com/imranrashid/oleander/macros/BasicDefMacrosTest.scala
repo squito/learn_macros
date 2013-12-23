@@ -1,12 +1,11 @@
 package com.imranrashid.oleander.macros
 
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 
 /**
  *
  */
-class BasicDefMacrosTest extends FunSuite with ShouldMatchers {
+class BasicDefMacrosTest extends FunSuite with Matchers {
   test("call a def macro") {
     BasicDefMacros.hello{7} should be ("hello 7")
     BasicDefMacros.hello{def x = 18} should be ("hello ()") //result doesn't really matter, just showing this works

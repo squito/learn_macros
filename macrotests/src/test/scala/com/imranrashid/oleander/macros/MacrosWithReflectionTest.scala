@@ -1,9 +1,8 @@
 package com.imranrashid.oleander.macros
 
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 
-class MacrosWithReflectionTest extends FunSuite with ShouldMatchers {
+class MacrosWithReflectionTest extends FunSuite with Matchers {
   test("get zero arg methods") {
     @FillDefsWithReflection[MyTrait] class Blah {
       val a = 16

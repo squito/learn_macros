@@ -1,9 +1,8 @@
 package com.imranrashid.oleander.macros
 
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 
-class BasicReflectionTest extends FunSuite with ShouldMatchers {
+class BasicReflectionTest extends FunSuite with Matchers {
 
   /* for some reason I don't understand, if I try to get the type of the trait through an implicit
      TypeTag *and* my reflection util class takes the universe as a parameter, then I get strange runtime errors, like

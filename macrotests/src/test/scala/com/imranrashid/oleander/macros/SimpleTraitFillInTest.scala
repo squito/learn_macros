@@ -1,9 +1,8 @@
 package com.imranrashid.oleander.macros
 
-import org.scalatest.matchers.{MustMatchers, ShouldMatchers}
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 
-class SimpleTraitFillInTest extends FunSuite with ShouldMatchers{
+class SimpleTraitFillInTest extends FunSuite with Matchers{
 
   test("fill in trait defs") {
     //the trait is already declared, but the macro actually supplies the defs
